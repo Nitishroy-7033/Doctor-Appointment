@@ -5,6 +5,7 @@ import '../Controllers/AppointmentController.dart';
 import '../Controllers/ProfileController.dart';
 import '../Models/AppointmentModel.dart';
 import '../Pages/AppointmentReport/AppointmentReport.dart';
+import '../Pages/ChatPage/ChatPage.dart';
 import '../Pages/CompleteTritment/TritmentPage.dart';
 
 class DockerAppointmentCardForDoctor extends StatelessWidget {
@@ -23,6 +24,14 @@ class DockerAppointmentCardForDoctor extends StatelessWidget {
             AppointmentReport(appointment: appointment),
             transition: Transition.rightToLeft,
           );
+        }
+        else{
+           Get.to(() => ChatPage(
+                chatId:
+                    '${appointment.userId}_${appointment.doctorId}', // Unique chat ID
+                senderId: profileController.localProfile.value!.id!,
+                receiverId: appointment.doctorId!,
+              ));
         }
       },
       child: Container(

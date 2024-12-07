@@ -83,8 +83,8 @@ class HomePage extends StatelessWidget {
                            Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                             Obx(()=> Text("Hello,${profileController.localProfile.value.name}"),),
-                              Text("Good Morning"),
+                              Text("Welcome"),
+                             Obx(()=> Text("${profileController.localProfile.value.name}"),),
                             ],
                           ),
                         ],

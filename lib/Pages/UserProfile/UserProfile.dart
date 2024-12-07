@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:myapp/Pages/Documents/DocumentsPage.dart';
+import 'package:myapp/Pages/HelpAndSupport/HelpAndSupportPage.dart';
 import '../../Controllers/AuthController.dart';
 import '../../Controllers/ProfileController.dart';
 import '../UserHistory/UserHistory.dart';
@@ -101,7 +103,7 @@ class UserProfile extends StatelessWidget {
               splashColor: Colors.deepPurple.shade300,
               onTap: () {
                 Get.to(
-                  () => const UserHistory(),
+                  () =>  UserHistory(),
                   transition: Transition.rightToLeft,
                 );
               },
@@ -111,14 +113,18 @@ class UserProfile extends StatelessWidget {
             ),
             ListTile(
               splashColor: Colors.deepPurple.shade300,
-              onTap: () {},
+              onTap: () {
+                Get.to(DocumentPage(userId: profileController.localProfile.value.id!));
+              },
               leading: const Icon(Icons.document_scanner),
               title: const Text("Documents"),
               trailing: const Icon(Icons.arrow_right),
             ),
             ListTile(
               splashColor: Colors.deepPurple.shade300,
-              onTap: () {},
+              onTap: () {
+                Get.to(HelpAndSupportPage());
+              },
               leading: const Icon(Icons.info),
               title: const Text("Help/Supports"),
               trailing: const Icon(Icons.arrow_right),

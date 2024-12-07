@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:myapp/Controllers/AuthController.dart';
+import 'package:myapp/Pages/Documents/DocumentsPage.dart';
 
 import '../../Controllers/ProfileController.dart';
 import '../DoctorAppointmentHistory/DocterAppoinmentHisotry.dart';
+import '../HelpAndSupport/HelpAndSupportPage.dart';
 import 'DocterProfileEdit.dart';
 
 class DoctorProfile extends StatelessWidget {
@@ -162,7 +164,9 @@ class DoctorProfile extends StatelessWidget {
               ),
               ListTile(
                 splashColor: Colors.deepPurple.shade300,
-                onTap: () {},
+                onTap: () {
+                  Get.to(DocumentPage(userId: doctorProfileController.localProfile.value.id!));
+                },
                 leading: const Icon(Icons.document_scanner),
                 title: const Text("Documents"),
                 trailing: const Icon(Icons.arrow_right),
@@ -170,7 +174,7 @@ class DoctorProfile extends StatelessWidget {
               ListTile(
                 splashColor: Colors.deepPurple.shade300,
                 onTap: () {
-                
+                  Get.to(HelpAndSupportPage());
                 },
                 leading: const Icon(Icons.info),
                 title: const Text("Help/Supports"),

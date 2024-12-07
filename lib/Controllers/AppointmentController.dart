@@ -21,9 +21,99 @@ class BookAppointmentController extends GetxController {
   Rx<DateTime?> selectedDate = DateTime.now().obs;
   Rx<TimeOfDay?> selectedTime = TimeOfDay.now().obs;
   var uuid = const Uuid();
+   RxList<String> slots = [
+    "9:00 AM - 9:30 AM",
+    "10:00 AM - 10:30 AM",
+    "11:00 AM - 11:30 AM",
+    "12:00 PM - 12:30 PM",
+    "2:00 PM - 2:30 PM",
+    "3:00 PM - 3:30 PM",
+    "4:00 PM - 4:30 PM",
+  ].obs;
+
+  // Selected slot
+  RxString selectedSlot = "".obs;
   NotificationController notificationController =
       Get.put(NotificationController());
+
   ProfileController profileController = Get.put(ProfileController());
+
+
+
+
+Future<void> bookAppointment(LocalProfile doctor, String targetDoctorId) async {
+    try {
+      if (selectedSlot.value.isEmpty) {
+        errorMessage("Please select a slot.");
+        return;
+      }
+
+      isLoading.value = true;
+      var id = uuid.v4();
+      var appointment = AppointmentModel(
+        id: id,
+        status: "Booked",
+        doctorId: doctor.id,
+        userId: profileController.localProfile.value!.id!,
+        doctorName: doctor.name,
+        createdAt: DateTime.now().toIso8601String(),
+        updatedAt: DateTime.now().toIso8601String(),
+        doctorSpecialization: doctor.specialization,
+        doctorProfileImage: doctor.profileImage,
+        date: getFormattedDate(), // Formatted date
+        time: selectedSlot.value, // Selected slot
+        amount: doctor.price.toString(),
+        userName: profileController.localProfile.value!.name,
+        userProfileImage: profileController.localProfile.value!.profileImage,
+        treatmentDetails: "",
+        treatmentDate: "",
+        treatmentImage: "",
+      );
+
+      await db.collection("appointments").doc(id).set(appointment.toJson());
+
+      // Store appointment for user or doctor
+      roleController.role.value == "user"
+          ? await db
+              .collection("users")
+              .doc(profileController.localProfile.value!.id!)
+              .collection("appointments")
+              .doc(id)
+              .set(appointment.toJson())
+          : await db
+              .collection("doctors")
+              .doc(profileController.localProfile.value!.id!)
+              .collection("appointments")
+              .doc(id)
+              .set(appointment.toJson());
+
+      // Store appointment under target doctor's collection
+      await db
+          .collection("doctors")
+          .doc(targetDoctorId)
+          .collection("appointments")
+          .doc(id)
+          .set(appointment.toJson());
+
+      successMessage("Appointment booked successfully");
+
+      var notification = NotificationModel(
+        id: uuid.v4(),
+        title: "Appointment Booked",
+        description:
+            "Your appointment with ${doctor.name} at ${selectedSlot.value} has been booked successfully",
+        createdAt: DateTime.now().toIso8601String(),
+      );
+      notificationController.addNotification(notification);
+    } catch (e) {
+      errorMessage(e.toString());
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+
+
 
   // Function to pick a date
   Future<void> pickDate(BuildContext context) async {
@@ -71,65 +161,65 @@ class BookAppointmentController extends GetxController {
     return '';
   }
 
-  Future<void> bookAppointment(LocalProfile doctor,String targetDoctorId) async {
-    try {
-      isLoading.value = true;
-      var id = uuid.v4();
-      var appointment = AppointmentModel(
-        id: id,
-        status: "Booked",
-        doctorId: doctor.id,
-        userId: profileController.localProfile.value!.id!,
-        doctorName: doctor.name,
-        createdAt: DateTime.now().toIso8601String(),
-        updatedAt: DateTime.now().toIso8601String(),
-        doctorSpecialization: doctor.specialization,
-        doctorProfileImage: doctor.profileImage,
-        date: getFormattedDate(), // Formatted date
-        time: getFormattedTime(), // Formatted time
-        amount: doctor.price.toString(),
-        userName: profileController.localProfile.value!.name,
-        userProfileImage: profileController.localProfile.value!.profileImage,
-        treatmentDetails: "",
-        treatmentDate: "",
-        treatmentImage: "",
-      );
-      await db.collection("appointments").doc(id).set(appointment.toJson());
-      roleController.role.value == "user" ?
-      await db
-          .collection("users")
-          .doc(profileController.localProfile.value!.id!)
-          .collection("appointments")
-          .doc(id)
-          .set(appointment.toJson()) :
-      await db
-          .collection("doctors")
-          .doc(profileController.localProfile.value!.id!)
-          .collection("appointments")
-          .doc(id)
-          .set(appointment.toJson());
+  // Future<void> bookAppointment(LocalProfile doctor,String targetDoctorId) async {
+  //   try {
+  //     isLoading.value = true;
+  //     var id = uuid.v4();
+  //     var appointment = AppointmentModel(
+  //       id: id,
+  //       status: "Booked",
+  //       doctorId: doctor.id,
+  //       userId: profileController.localProfile.value!.id!,
+  //       doctorName: doctor.name,
+  //       createdAt: DateTime.now().toIso8601String(),
+  //       updatedAt: DateTime.now().toIso8601String(),
+  //       doctorSpecialization: doctor.specialization,
+  //       doctorProfileImage: doctor.profileImage,
+  //       date: getFormattedDate(), // Formatted date
+  //       time: getFormattedTime(), // Formatted time
+  //       amount: doctor.price.toString(),
+  //       userName: profileController.localProfile.value!.name,
+  //       userProfileImage: profileController.localProfile.value!.profileImage,
+  //       treatmentDetails: "",
+  //       treatmentDate: "",
+  //       treatmentImage: "",
+  //     );
+  //     await db.collection("appointments").doc(id).set(appointment.toJson());
+  //     roleController.role.value == "user" ?
+  //     await db
+  //         .collection("users")
+  //         .doc(profileController.localProfile.value!.id!)
+  //         .collection("appointments")
+  //         .doc(id)
+  //         .set(appointment.toJson()) :
+  //     await db
+  //         .collection("doctors")
+  //         .doc(profileController.localProfile.value!.id!)
+  //         .collection("appointments")
+  //         .doc(id)
+  //         .set(appointment.toJson());
 
-          await db
-          .collection("doctors")
-          .doc(targetDoctorId)
-          .collection("appointments")
-          .doc(id)
-          .set(appointment.toJson());
-      successMessage("Appointment booked successfully");
-      var notification = NotificationModel(
-        id: uuid.v4(),
-        title: "Appointment Booked",
-        description:
-            "Your appointment with ${doctor.name} has been booked successfully",
-        createdAt: DateTime.now().toIso8601String(),
-      );
-      notificationController.addNotification(notification);
-    } catch (e) {
-      errorMessage(e.toString());
-    } finally {
-      isLoading.value = false;
-    }
-  }
+  //         await db
+  //         .collection("doctors")
+  //         .doc(targetDoctorId)
+  //         .collection("appointments")
+  //         .doc(id)
+  //         .set(appointment.toJson());
+  //     successMessage("Appointment booked successfully");
+  //     var notification = NotificationModel(
+  //       id: uuid.v4(),
+  //       title: "Appointment Booked",
+  //       description:
+  //           "Your appointment with ${doctor.name} has been booked successfully",
+  //       createdAt: DateTime.now().toIso8601String(),
+  //     );
+  //     notificationController.addNotification(notification);
+  //   } catch (e) {
+  //     errorMessage(e.toString());
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   Stream<List<AppointmentModel>> getAppointments(String id) {
     if (roleController.role.value == "user") {

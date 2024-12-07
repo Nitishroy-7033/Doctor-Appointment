@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:myapp/Controllers/ProfileController.dart';
 
 import '../Controllers/AppointmentController.dart';
 import '../Models/AppointmentModel.dart';
 import '../Pages/AppointmentReport/AppointmentReport.dart';
+import '../Pages/ChatPage/ChatPage.dart';
 
 class DoctorAppointmentCardForUser extends StatelessWidget {
   final AppointmentModel appointment;
@@ -11,6 +13,7 @@ class DoctorAppointmentCardForUser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ProfileController profileController = Get.put(ProfileController());
     BookAppointmentController appointmentController =
         Get.put(BookAppointmentController());
     return InkWell(
@@ -20,6 +23,13 @@ class DoctorAppointmentCardForUser extends StatelessWidget {
             AppointmentReport(appointment: appointment),
             transition: Transition.rightToLeft,
           );
+        } else {
+          Get.to(() => ChatPage(
+                chatId:
+                    '${appointment.userId}_${appointment.doctorId}', // Unique chat ID
+                senderId: profileController.localProfile.value!.id!,
+                receiverId: appointment.doctorId!,
+              ));
         }
       },
       child: Container(
@@ -35,25 +45,33 @@ class DoctorAppointmentCardForUser extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                       appointment.doctorProfileImage!=null && appointment.doctorProfileImage!.isNotEmpty?Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.deepPurple.shade300,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        width: 70,
-                        height: 70,
-                        child: ClipRRect(borderRadius: BorderRadius.circular(10),child: Image.network(appointment.doctorProfileImage!,fit: BoxFit.cover,)),
-                      ) :Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.deepPurple.shade300,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        width: 70,
-                        height: 70,
-                        child: Icon(Icons.broken_image_rounded),
-                      ),
+                      appointment.doctorProfileImage != null &&
+                              appointment.doctorProfileImage!.isNotEmpty
+                          ? Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.deepPurple.shade300,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              width: 70,
+                              height: 70,
+                              child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.network(
+                                    appointment.doctorProfileImage!,
+                                    fit: BoxFit.cover,
+                                  )),
+                            )
+                          : Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.deepPurple.shade300,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              width: 70,
+                              height: 70,
+                              child: Icon(Icons.broken_image_rounded),
+                            ),
                       const SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +136,8 @@ class DoctorAppointmentCardForUser extends StatelessWidget {
                               ? ElevatedButton(
                                   onPressed: () {
                                     Get.to(
-                                      AppointmentReport(appointment: appointment),
+                                      AppointmentReport(
+                                          appointment: appointment),
                                       transition: Transition.rightToLeft,
                                     );
                                   },
