@@ -25,7 +25,7 @@ class DoctorTritmentPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.deepPurple.shade100,
       appBar: AppBar(
-        title: const Text("Tritment"),
+        title: const Text("Treatment "),
       ),
       body: SafeArea(
           child: Padding(
@@ -41,7 +41,7 @@ class DoctorTritmentPage extends StatelessWidget {
                     contentPadding: EdgeInsets.all(10),
                     fillColor: Colors.white,
                     filled: true,
-                    hintText: "Tritment Details",
+                    hintText: "Treatment  Details",
                     border: UnderlineInputBorder()),
               ),
               const SizedBox(height: 10),
