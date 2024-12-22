@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../Controllers/ProfileController.dart';
 import '../../Models/Doctor.dart';
 import '../../Models/LocalProfile.dart';
+import '../../Widgets/NotificationWidget.dart';
 
 class DoctorProfileEdit extends StatelessWidget {
   final LocalProfile doctor;
@@ -29,6 +33,7 @@ class DoctorProfileEdit extends StatelessWidget {
         TextEditingController(text: doctor.aboutUs);
     ProfileController doctorProfileController =
         Get.put(ProfileController());
+         Rx<XFile?> image = Rx<XFile?>(null);
     return Scaffold(
       floatingActionButton: Obx(
         () => doctorProfileController.isLoading.value
@@ -37,8 +42,14 @@ class DoctorProfileEdit extends StatelessWidget {
                 child: const CircularProgressIndicator(),
               )
             : FloatingActionButton.extended(
-                onPressed: () {
+                onPressed: () async{
+                    if (image.value == null) {
+                    errorMessage("Please select an image");
+                    return;
+                  }
+                  String? imageUrl = await doctorProfileController.uploadImageToFirebaseStorage(image.value!);
                   var newDoctor = DoctorModel(
+                    profileImage: imageUrl,
                     name: nameController.text,
                     experience: int.parse(experienceController.text),
                     rating: double.parse(ratingController.text),
@@ -54,7 +65,6 @@ class DoctorProfileEdit extends StatelessWidget {
                     contactNumber: doctor.contactNumber,
                     email: doctor.email,
                     timings: doctor.timings,
-                    profileImage: doctor.profileImage,
                     role: doctor.role,
 
                   );
@@ -78,16 +88,43 @@ class DoctorProfileEdit extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                Row(
+                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 200,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white,
-                      ),
+                    Obx(
+                      () => image.value == null
+                          ? InkWell(
+                              onTap: () async {
+                                image.value = await doctorProfileController.pickupImage();
+                              },
+                            child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: Colors.white,
+                                ),
+                                child: const Icon(
+                                  Icons.add_a_photo,
+                                  size: 50,
+                                  color: Colors.deepPurple,
+                                ),
+                              ),
+                          )
+                          : 
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: Colors.white,
+                                ),
+                                child: Image.file(
+                              File(image.value!.path),
+                              fit: BoxFit.cover,
+                            ),
+                          )
                     ),
                   ],
                 ),

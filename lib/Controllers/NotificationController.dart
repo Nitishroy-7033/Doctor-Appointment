@@ -17,7 +17,7 @@ class NotificationController extends GetxController {
     try {
       var id = uuid.v4();
       notification.id = id;
-      await db.collection("notifications").doc(id).set(notification.toJson());
+      await db.collection("users").doc(auth.currentUser!.uid).collection("notifications").doc(id).set(notification.toJson());
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String role = prefs.getString(ROLE) ?? "";
       if (role == "doctor") {
@@ -42,6 +42,6 @@ class NotificationController extends GetxController {
   }
 
   Stream<List<NotificationModel>> getNotifications(String id) {
-    return db.collection("notifications").snapshots().map((event) => event.docs.map((e) => NotificationModel.fromJson(e.data())).toList(),);
+    return db.collection("users").doc(auth.currentUser!.uid).collection("notifications").snapshots().map((event) => event.docs.map((e) => NotificationModel.fromJson(e.data())).toList(),);
   }
 }
