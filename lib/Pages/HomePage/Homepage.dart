@@ -128,6 +128,15 @@ class HomePage extends StatelessWidget {
                   child: Image.asset("assets/banner.png"),
                 ),
                 const SizedBox(height: 20),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children:[
+                  Text("Category"),
+                  Text("See All",style: TextStyle(
+                    color: Colors.blue
+                  ),),
+                ]),
+                const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
